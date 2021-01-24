@@ -16,7 +16,7 @@ async fn pfp(ctx: &Context, msg: &Message) -> CommandResult {
 				format!("Could not get profile picture of {}", msg.mentions[0].name
 				))).await?;
 	} else {
-		msg.channel_id.say(ctx, msg.author.avatar_url().unwrap()).await?;
+		msg.reply(ctx, msg.author.avatar_url().unwrap()).await?;
 	}
 	Ok(())
 }
@@ -37,8 +37,12 @@ async fn roll(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 					let first = message_contents[1].parse::<i32>();
 					let second = message_contents[2].parse::<i32>();
 					if first.is_ok() && second.is_ok() {
-						let num = rand::thread_rng().gen_range(first.unwrap_or(1)..second.unwrap_or(7));
-						msg.reply(ctx, num).await?;
+						if first.clone().unwrap() > second.clone().unwrap() {
+							msg.reply(ctx, "First num must be smaller than second").await?;
+						} else {
+							let num = rand::thread_rng().gen_range(first.unwrap_or(1)..second.unwrap_or(7));
+							msg.reply(ctx, num).await?;
+						}
 					} else {
 						msg.reply(ctx, "Invalid digits").await?;
 					}

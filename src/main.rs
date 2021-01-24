@@ -53,6 +53,5 @@ async fn main() {
 #[command]
 async fn ping(ctx: &Context, msg: &Message) -> CommandResult {
 	msg.reply(ctx, "Pong!").await?;
-	msg.delete(ctx).await?;
 	Ok(())
 }
