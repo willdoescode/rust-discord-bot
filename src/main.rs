@@ -18,7 +18,7 @@ use serenity::framework::standard::{
 use std::env;
 
 #[group]
-#[commands(ping, pfp, echo, help)]
+#[commands(ping, pfp, echo, help, roll)]
 struct General;
 
 struct Handler;
