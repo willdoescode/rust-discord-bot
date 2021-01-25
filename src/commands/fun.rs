@@ -4,26 +4,68 @@ use serenity::framework::standard::{
 	Args, CommandResult,
 	macros::command,
 };
+use serenity::utils::Colour;
 use rand::Rng;
 
 #[command]
 async fn pfp(ctx: &Context, msg: &Message) -> CommandResult {
 	msg.react(ctx, ReactionType::Unicode("👍".parse().unwrap())).await?;
 	if msg.mentions.len() > 0 {
-		msg.channel_id.say(
-			ctx,
-			msg.mentions[0].avatar_url().unwrap_or(
-				format!("Could not get profile picture of {}", msg.mentions[0].name
-				))).await?;
+		msg.channel_id.send_message(ctx, |m| {
+			m.embed(|e| {
+				e.title(format!("{} avatar", msg.author.name));
+				e.color(Colour::from_rgb(
+					rand::thread_rng().gen_range(1..255),
+					rand::thread_rng().gen_range(1..255),
+					rand::thread_rng().gen_range(1..255)
+				));
+				e.image(
+					msg.mentions
+							.first()
+							.unwrap()
+							.avatar_url()
+							.unwrap_or(
+								"https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fnetflixroulette.files.wordpress.com%2F2013%2F01%2Fimage-not-found.gif&f=1&nofb=1"
+										.parse()
+										.unwrap()
+							)
+				);
+				e
+			});
+			m
+		}).await?;
 	} else {
-		msg.reply(ctx, msg.author.avatar_url().unwrap()).await?;
+		msg.channel_id.send_message(ctx, |m| {
+			m.embed(|e| {
+				e.title(format!("{} avatar", msg.author.name));
+				e.color(Colour::from_rgb(
+					rand::thread_rng().gen_range(1..255),
+					rand::thread_rng().gen_range(1..255),
+					rand::thread_rng().gen_range(1..255)
+				));
+				e.image(
+					msg
+							.author
+							.avatar_url()
+							.unwrap_or(
+								"https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fnetflixroulette.files.wordpress.com%2F2013%2F01%2Fimage-not-found.gif&f=1&nofb=1"
+										.parse()
+										.unwrap()
+							)
+				);
+				e
+			});
+			m
+		}).await?;
 	}
 	Ok(())
 }
 
 #[command]
 async fn echo(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
-	msg.reply(ctx, format!("{}: {}", msg.author.name, args.message())).await?;
+	if !msg.mention_everyone {
+		msg.reply(ctx, format!("{}: {}", msg.author.name, args.message())).await?;
+	}
 	Ok(())
 }
 
@@ -59,6 +101,5 @@ async fn roll(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 		let num = rand::thread_rng().gen_range(1..7);
 		msg.reply(ctx, num).await?;
 	}
-
 	Ok(())
 }
